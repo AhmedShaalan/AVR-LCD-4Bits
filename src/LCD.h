@@ -51,10 +51,10 @@
 #define LCD_LSHIFT		 	0x05	// Left Shift ***
 #define LCD_ON 	 	        0x0C	// LCD ON
 #define LCD_OFF 		 	0x08    // LCD OFF
-#define LCD_CURSER_ON	 	0x0A 	// Cursor ON
-#define LCD_CURSER_OFF	 	0x08	// Cursor OFF
-#define LCD_BLINK_ON	 	0x09 	// Cursor Blink ON
-#define LCD_BLINK_OFF	 	0x08 	// Cursor Blink OFF
+#define LCD_CURSER_ON	 	0x0E 	// Cursor ON
+#define LCD_CURSER_OFF	 	0x0C	// Cursor OFF
+#define LCD_BLINK_ON	 	0x0F 	// Cursor Blink ON
+#define LCD_BLINK_OFF	 	0x0C 	// Cursor Blink OFF
 #define LCD_LINE1           0x80    // Go to 1st line
 #define LCD_LINE2           0xC0    // Go to 2nd line
 #define LCD_CGRAM           0x40    // CGRAM start address
