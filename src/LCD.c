@@ -132,7 +132,7 @@ void lcd_putn(ubyte integer) {
  *
  ***************************************************************************/
 
-void lcd_xy(ubyte x, ubyte y) {
+void lcd_move_cursor(ubyte x, ubyte y) {
 
     switch (y) {
         case 1:
