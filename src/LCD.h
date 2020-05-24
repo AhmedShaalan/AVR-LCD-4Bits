@@ -84,6 +84,11 @@ typedef enum {
 void lcd_init (void);
 void lcd_puts (char *string);
 void lcd_putn (ubyte integer);
+void lcd_exe_instruction(LCD_INSTRUCTION_TYPE instruction_type, char instruction);
+void lcd_move_cursor(ubyte x, ubyte y);
+void lcd_clear_display(void);
+void lcd_cursor_home(void);
+void lcd_display_control(LCD_DISPLAY display_status, LCD_CURSOR cursor_status, LCD_BLINK cursor_blink);
 /* LCD Functions 										*/
 
 #endif /* _LCD_H_ */
