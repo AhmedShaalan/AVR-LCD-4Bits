@@ -51,133 +51,6 @@
 
 /***************************************************************************
  *
- *  Enable Signal Function
- *  ***********************
- *
- *	 Write description if you can :D
- ***************************************************************************/
-
-static void lcd_enable_signal(void) {
-    LCD_PORT |= (1 << LCD_EN);
-    // asm volatile ("nop");
-    // asm volatile ("nop");
-    _delay_ms(1);
-    LCD_PORT &= ~(1 << LCD_EN);
-}
-
-/***************************************************************************
- *
- *  Function Name: Send Command Signal
- *  **********************************
- *
- *	Description:
- *	************
- *		- Configure LCD to receive a command
- *			- Set 'R/W' to Low (To Write)
- *			- Set 'RS' to Low  (To Send Command)
- *			- Send 'EN' Signal
- *
- *	Parameters:
- *	***********
- *		- None
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
- *
- ***************************************************************************/
-
-static void lcd_cmd_signal(void) {
-    LCD_PORT &= ~((1 << LCD_RW) | (1 << LCD_RS));
-    lcd_enable_signal();
-}
-
-/***************************************************************************
- *
- *  Function Name: LCD Send Command
- *  ********************************
- *
- *	Description:
- *	************
- * 		- Send a specific command to the LCD
- *			- Mask higher 4-bits
- *			- Send to the LCD port
- *			- Send enable signal
- *			- Mask lower 4-bits
- *			- Send to LCD port
- *			- Send enable signal
- *
- *	Parameters:
- *	***********
- *		- Command: Commands
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- This Optimized for LCD Data to be on pin (4 - 7)
- *
- ***************************************************************************/
-
-void lcd_cmd(unsigned char command) {
-
-    // ---------------------- Processing High Nibble ----------------------//
-
-    LCD_PORT = (((command & 16) >= 1) << LCD_DB4) | (((command & 32) >= 1) << LCD_DB5) |
-               (((command & 64) >= 1) << LCD_DB6) | (((command & 128) >= 1) << LCD_DB7);
-
-    lcd_cmd_signal();
-
-    // ---------------------- Processing Low Nibble ----------------------//
-
-    LCD_PORT = (((command & 1) >= 1) << LCD_DB4) | (((command & 2) >= 1) << LCD_DB5) |
-               (((command & 4) >= 1) << LCD_DB6) | (((command & 8) >= 1) << LCD_DB7);
-
-    lcd_cmd_signal();
-
-    _delay_us(200);
-}
-
-/***************************************************************************
- *
- *  Function Name: Send Data Signal
- *  **********************************
- *
- *	Description:
- *	************
- * 		- Configure the LCD to receive data
- *			- Set 'R/W' to Low (To Write Mode)
- *			- Set 'RS' to Low  (Select Command Register)
- *			- Send 'EN' Signal
- *
- *	Parameters:
- *	***********
- *		- None
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
- *
- ***************************************************************************/
-
-static void lcd_data_signal(void) {
-    LCD_PORT &= ~(1 << LCD_RW);
-    LCD_PORT |= (1 << LCD_RS);
-    lcd_enable_signal();
-}
-
-/***************************************************************************
- *
  *  Function Name: LCD Display
  *  ********************************
  *
@@ -204,56 +77,7 @@ static void lcd_data_signal(void) {
 void lcd_puts(char* string) {
 
     while (*string > 0)
-        lcd_putc(*string++);
-}
-
-/***************************************************************************
- *
- *  Function Name: LCD Put Char
- *  ***************************
- *
- *	Description:
- *	************
- * 		- Processing chars and send it to the LCD to display them
- *			- Mask higher 4-bits
- *			- Send to the LCD port
- *			- Send enable signal
- *			- Mask lower 4-bits
- *			- Send to LCD port
- *			- Send enable signal
- *
- *	Parameters:
- *	***********
- *		- Unsigned Character or Array of Characters "String"
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
- *
- ***************************************************************************/
-
-void lcd_putc(char aChar) {
-    // char initData; // initialized Data Holder
-
-    // ---------------------- Processing High Nibble ----------------------//
-
-    LCD_PORT = (((aChar & 16) >= 1) << LCD_DB4) | (((aChar & 32) >= 1) << LCD_DB5) | (((aChar & 64) >= 1) << LCD_DB6) |
-               (((aChar & 128) >= 1) << LCD_DB7);
-
-    lcd_data_signal();
-
-    // ---------------------- Processing Low Nibble ----------------------//
-
-    LCD_PORT = (((aChar & 1) >= 1) << LCD_DB4) | (((aChar & 2) >= 1) << LCD_DB5) | (((aChar & 4) >= 1) << LCD_DB6) |
-               (((aChar & 8) >= 1) << LCD_DB7);
-
-    lcd_data_signal();
-
-    _delay_us(200);
+        lcd_exe_instruction(DATA_INSTRUCTION, *string++);
 }
 
 /***************************************************************************
@@ -312,16 +136,89 @@ void lcd_xy(ubyte x, ubyte y) {
 
     switch (y) {
         case 1:
-            lcd_cmd(LCD_LINE1 + x);
+            lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_LINE1 + x);
             break;
 
         case 2:
-            lcd_cmd(LCD_LINE2 + x);
+            lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_LINE2 + x);
             break;
 
         default:
             break;
     }
+}
+
+/***************************************************************************
+ *
+ *  Function Name: LCD Clear Display
+ *  ********************************
+ *
+ *	Description:
+ *	************
+ * 		- This function used for clearing the display
+ *        and returning the cursor home.
+ *
+ *	Parameters:
+ *	***********
+ *		- None
+ *
+ *	Returns:
+ *	********
+ *		- None
+ *
+ *	Notes:
+ *	******
+ *		- None
+ *
+ ***************************************************************************/
+
+void lcd_clear_display() {
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_HOME); // LCD display ON
+
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
+    _delay_ms(50);
+}
+
+/***************************************************************************
+ *
+ *  Function Name: LCD Execute Instruction
+ *  ********************************
+ *
+ *	Description:
+ *	************
+ * 		- Used to send instructions (Data/Commands) to the LCD.
+ *
+ *	Parameters:
+ *	***********
+ *		- instruction_type: data or command.
+ *      - Instruction: the data/command to excute.
+ *
+ *	Returns:
+ *	********
+ *		- None
+ *
+ *	Notes:
+ *	******
+ *		- None
+ *
+ ***************************************************************************/
+
+void lcd_exe_instruction(LCD_INSTRUCTION_TYPE instruction_type, char instruction) {
+
+    // processing high nibble
+    LCD_PORT = (1 << LCD_EN) | (instruction_type << LCD_RS) | (((instruction & 16) >= 1) << LCD_DB4) |
+               (((instruction & 32) >= 1) << LCD_DB5) | (((instruction & 64) >= 1) << LCD_DB6) |
+               (((instruction & 128) >= 1) << LCD_DB7);
+
+    LCD_PORT &= ~(1 << LCD_EN);
+
+    // processing low nibble
+    LCD_PORT = (1 << LCD_EN) | (instruction_type << LCD_RS) | (((instruction & 1) >= 1) << LCD_DB4) |
+               (((instruction & 2) >= 1) << LCD_DB5) | (((instruction & 4) >= 1) << LCD_DB6) |
+               (((instruction & 8) >= 1) << LCD_DB7);
+
+    LCD_PORT &= ~(1 << LCD_EN);
+    _delay_ms(1);
 }
 
 /***************************************************************************
@@ -361,13 +258,14 @@ void lcd_init(void) {
             ((1 << LCD_DB4) | (1 << LCD_DB5) | (1 << LCD_DB6) | (1 << LCD_DB7) | (1 << LCD_RS) | (1 << LCD_RW) |
              (1 << LCD_EN));
 
-    lcd_cmd(0x02);   // Initialize LCD in 4-Bit mode
-    lcd_cmd(0x28);   // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
-    lcd_cmd(LCD_ON); // LCD display ON
+    _delay_ms(17);
 
-    lcd_xy(4, 1);
+    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x02);   // Initialize LCD in 4-Bit mode
+    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x28);   // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_ON); // LCD display ON
+
+    lcd_clear_display();
+
+    lcd_xy(5, 1);
     lcd_puts("Hello");
-    lcd_xy(6, 2);
-    lcd_puts("World!");
-    _delay_ms(300);
 }

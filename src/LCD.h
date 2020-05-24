@@ -51,16 +51,21 @@
 #define LCD_LSHIFT		 	0x05	// Left Shift ***
 #define LCD_ON 	 	        0x0C	// LCD ON
 #define LCD_OFF 		 	0x08    // LCD OFF
-#define LCD_CURSER_ON	 	0x0E 	// Cursor ON
-#define LCD_CURSER_OFF	 	0x0C	// Cursor OFF
+#define LCD_CURSOR_ON	 	0x0E 	// Cursor ON
+#define LCD_CURSOR_OFF	 	0x0C	// Cursor OFF
 #define LCD_BLINK_ON	 	0x0F 	// Cursor Blink ON
 #define LCD_BLINK_OFF	 	0x0C 	// Cursor Blink OFF
 #define LCD_LINE1           0x80    // Go to 1st line
 #define LCD_LINE2           0xC0    // Go to 2nd line
 #define LCD_CGRAM           0x40    // CGRAM start address
 #define LCD_DDRAM           0x80    // DDRAM start address
-
 /* LCD Commands 										*/
+
+typedef enum  {
+	DATA_INSTRUCTION = 1,
+	COMMAND_INSTRUCTION = 0
+}LCD_INSTRUCTION_TYPE;
+
 
 /* LCD Functions 										*/
 void lcd_init (void);
