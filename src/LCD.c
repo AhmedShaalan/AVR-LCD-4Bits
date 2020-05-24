@@ -163,7 +163,7 @@ void lcd_move_cursor(ubyte x, ubyte y) {
  *s
  ***************************************************************************/
 
-void lcd_clear_display() {
+void lcd_clear_display(void) {
     lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_HOME); // LCD display ON
 
     lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
@@ -181,9 +181,31 @@ void lcd_clear_display() {
  *
  ***************************************************************************/
 
-void lcd_cursor_home() {
+void lcd_cursor_home(void) {
     lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
     _delay_ms(5);
+}
+
+/***************************************************************************
+ *
+ *  Function Name: LCD Display Control
+ *  ********************************
+ *
+ *	Description:
+ *	************
+ * 		- Used to set display criteria, such as turning display on/off, curse on/off
+ *        and if the cursor should blink.
+ *
+ *	Parameters:
+ *	***********
+ *		- display_status: display on/off.
+ *		- cursor_status: cursor on/off.
+ *		- cursor_blink: cursor blink on/off.
+ *
+ ***************************************************************************/
+
+void lcd_display_control(LCD_DISPLAY display_status, LCD_CURSOR cursor_status, LCD_BLINK cursor_blink) {
+    lcd_exe_instruction(COMMAND_INSTRUCTION, (display_status | cursor_status | cursor_blink));
 }
 
 /***************************************************************************
@@ -203,7 +225,7 @@ void lcd_cursor_home() {
  *
  ***************************************************************************/
 
-void lcd_init() {
+void lcd_init(void) {
     // wait for reset routine (some LCDs are 50ms)
     _delay_ms(17);
 
@@ -213,10 +235,10 @@ void lcd_init() {
 
     _delay_ms(17);
 
-    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x02);   // Initialize LCD in 4-Bit mode
-    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x28);   // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
-    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_ON); // LCD display ON
+    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x02); // Initialize LCD in 4-Bit mode
+    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x28); // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
 
+    lcd_display_control(LCD_DISPLAY_ON, LCD_CURSOR_OFF, LCD_CURSOR_OFF); // LCD display ON
     lcd_clear_display();
 
     lcd_move_cursor(5, 1);
