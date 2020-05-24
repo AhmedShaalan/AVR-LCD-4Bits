@@ -354,8 +354,8 @@ void lcd_xy(ubyte x, ubyte y) {
  ***************************************************************************/
 
 void lcd_init(void) {
-    // wait for reset routine
-    _delay_ms(50);
+    // wait for reset routine (some LCDs are 50ms)
+    _delay_ms(17);
 
     LCD_DDR =
             ((1 << LCD_DB4) | (1 << LCD_DB5) | (1 << LCD_DB6) | (1 << LCD_DB7) | (1 << LCD_RS) | (1 << LCD_RW) |
