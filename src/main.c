@@ -15,8 +15,6 @@ int main(void) {
     /* Initialize LCD 					*/
     lcd_init();
 
-    // lcd_puts("Hello..");
-
     while (1) {
     }
     return 0; // never reached

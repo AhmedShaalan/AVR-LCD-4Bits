@@ -2,8 +2,7 @@
  * LCD.h
  *
  *	4-bit LCD Interface
- *  Date Created: 28.10.2014
- *   Last Update: 29.10.2014
+ *  Date Created: 28.10.2014s
  * 		Hardware: LCD 16x2
  *        Author: Ahmed_Shaalan
  *

@@ -1,7 +1,7 @@
 /****************************************************************************
     LCD.c  - Use an LMB162ABC based LCD with an Atmel ATmega processor
 
-    Copyright (C) 2014 Ahmed Shaalan    (ahmed.bytes@yahoo.com)
+    Copyright (C) 2014 Ahmed Shaalan    (ahmed_shaalan@icloud.com)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
   ****************************************************************************
          File:    LCD.c
          Date:    October 28, 2014
-  Last Update:    June 19, 2015
        Target:    ATmega32A
      Compiler:    avr-gcc
        Author:    Ahmed Shaalan
@@ -51,26 +50,50 @@
 
 /***************************************************************************
  *
- *  Function Name: LCD Display
+ *  Function Name: LCD Execute Instruction
  *  ********************************
  *
  *	Description:
  *	************
- * 		- Cut strings into single char and send it to the Display Helper
- *			- Loop for the Array of Characters (String)
- *			- Pass character by character to LCD_Display_Helper
+ * 		- Used to send instructions (Data/Commands) to the LCD.
+ *
+ *	Parameters:
+ *	***********
+ *		- instruction_type: data or command.
+ *      - Instruction: the data/command to excute.
+ *
+ ***************************************************************************/
+
+void lcd_exe_instruction(LCD_INSTRUCTION_TYPE instruction_type, char instruction) {
+
+    // processing high nibble
+    LCD_PORT = (1 << LCD_EN) | (instruction_type << LCD_RS) | (((instruction & 16) >= 1) << LCD_DB4) |
+               (((instruction & 32) >= 1) << LCD_DB5) | (((instruction & 64) >= 1) << LCD_DB6) |
+               (((instruction & 128) >= 1) << LCD_DB7);
+
+    LCD_PORT &= ~(1 << LCD_EN);
+
+    // processing low nibble
+    LCD_PORT = (1 << LCD_EN) | (instruction_type << LCD_RS) | (((instruction & 1) >= 1) << LCD_DB4) |
+               (((instruction & 2) >= 1) << LCD_DB5) | (((instruction & 4) >= 1) << LCD_DB6) |
+               (((instruction & 8) >= 1) << LCD_DB7);
+
+    LCD_PORT &= ~(1 << LCD_EN);
+    _delay_ms(1);
+}
+
+/***************************************************************************
+ *
+ *  Function Name: LCD Put String
+ *  ********************************
+ *
+ *	Description:
+ *	************
+ * 		- Cut strings into single char and send them one by one
  *
  *	Parameters:
  *	***********
  *		- Unsigned Character or Array of Characters "String"
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
  *
  ***************************************************************************/
 
@@ -93,14 +116,6 @@ void lcd_puts(char* string) {
  *	***********
  *		- Unsigned Character or Array of Characters "String"
  *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
- *
  ***************************************************************************/
 
 void lcd_putn(ubyte integer) {
@@ -111,24 +126,12 @@ void lcd_putn(ubyte integer) {
 
 /***************************************************************************
  *
- *  Function Name: LCD XY
+ *  Function Name: LCD Move Cursor
  *  ********************************
  *
  *	Description:
  *	************
  * 		- Sets courser position
- *
- *	Parameters:
- *	***********
- *		- None
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
  *
  ***************************************************************************/
 
@@ -157,68 +160,30 @@ void lcd_move_cursor(ubyte x, ubyte y) {
  *	************
  * 		- This function used for clearing the display
  *        and returning the cursor home.
- *
- *	Parameters:
- *	***********
- *		- None
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
- *
+ *s
  ***************************************************************************/
 
 void lcd_clear_display() {
     lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_HOME); // LCD display ON
 
     lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
-    _delay_ms(50);
+    _delay_ms(5);
 }
 
 /***************************************************************************
  *
- *  Function Name: LCD Execute Instruction
+ *  Function Name: LCD Cursor Home
  *  ********************************
  *
  *	Description:
  *	************
- * 		- Used to send instructions (Data/Commands) to the LCD.
- *
- *	Parameters:
- *	***********
- *		- instruction_type: data or command.
- *      - Instruction: the data/command to excute.
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
+ * 		- move cursor to the first position.
  *
  ***************************************************************************/
 
-void lcd_exe_instruction(LCD_INSTRUCTION_TYPE instruction_type, char instruction) {
-
-    // processing high nibble
-    LCD_PORT = (1 << LCD_EN) | (instruction_type << LCD_RS) | (((instruction & 16) >= 1) << LCD_DB4) |
-               (((instruction & 32) >= 1) << LCD_DB5) | (((instruction & 64) >= 1) << LCD_DB6) |
-               (((instruction & 128) >= 1) << LCD_DB7);
-
-    LCD_PORT &= ~(1 << LCD_EN);
-
-    // processing low nibble
-    LCD_PORT = (1 << LCD_EN) | (instruction_type << LCD_RS) | (((instruction & 1) >= 1) << LCD_DB4) |
-               (((instruction & 2) >= 1) << LCD_DB5) | (((instruction & 4) >= 1) << LCD_DB6) |
-               (((instruction & 8) >= 1) << LCD_DB7);
-
-    LCD_PORT &= ~(1 << LCD_EN);
-    _delay_ms(1);
+void lcd_cursor_home() {
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
+    _delay_ms(5);
 }
 
 /***************************************************************************
@@ -236,21 +201,9 @@ void lcd_exe_instruction(LCD_INSTRUCTION_TYPE instruction_type, char instruction
  *          - Reset DDRAM address to first line
  *          - LCD display ON
  *
- *	Parameters:
- *	***********
- *		- None
- *
- *	Returns:
- *	********
- *		- None
- *
- *	Notes:
- *	******
- *		- None
- *
  ***************************************************************************/
 
-void lcd_init(void) {
+void lcd_init() {
     // wait for reset routine (some LCDs are 50ms)
     _delay_ms(17);
 
@@ -266,6 +219,6 @@ void lcd_init(void) {
 
     lcd_clear_display();
 
-    lcd_xy(5, 1);
-    lcd_puts("Hello");
+    lcd_move_cursor(5, 1);
+    lcd_puts("Hello!");
 }
