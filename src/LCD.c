@@ -164,9 +164,9 @@ void lcd_move_cursor(ubyte x, ubyte y) {
  ***************************************************************************/
 
 void lcd_clear_display(void) {
-    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_HOME); // LCD display ON
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_HOME);
 
-    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR);
     _delay_ms(5);
 }
 
@@ -182,7 +182,7 @@ void lcd_clear_display(void) {
  ***************************************************************************/
 
 void lcd_cursor_home(void) {
-    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_CLR); // LCD display ON
+    lcd_exe_instruction(COMMAND_INSTRUCTION, LCD_HOME);
     _delay_ms(5);
 }
 
@@ -238,7 +238,7 @@ void lcd_init(void) {
     lcd_exe_instruction(COMMAND_INSTRUCTION, 0x02); // Initialize LCD in 4-Bit mode
     lcd_exe_instruction(COMMAND_INSTRUCTION, 0x28); // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
 
-    lcd_display_control(LCD_DISPLAY_ON, LCD_CURSOR_OFF, LCD_CURSOR_OFF); // LCD display ON
+    lcd_display_control(LCD_DISPLAY_ON, LCD_CURSOR_OFF, LCD_BLINK_OFF);
     lcd_clear_display();
 
     lcd_move_cursor(5, 1);
