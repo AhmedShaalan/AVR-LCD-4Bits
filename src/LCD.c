@@ -231,6 +231,8 @@ void lcd_init(void) {
     lcd_display_control(LCD_DISPLAY_ON, LCD_CURSOR_OFF, LCD_BLINK_OFF);
     lcd_clear_display();
 
-    lcd_move_cursor(5, 1);
-    lcd_puts("Hello!");
+    lcd_move_cursor(0, 1);
+    lcd_puts("Ready For Work!");
+    _delay_ms(1000);
+    lcd_clear_display();
 }
