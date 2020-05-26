@@ -3,19 +3,6 @@
 
     Copyright (C) 2014 Ahmed Shaalan    (ahmed_shaalan@icloud.com)
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
   ****************************************************************************
          File:    LCD.c
          Date:    October 28, 2014
@@ -235,8 +222,11 @@ void lcd_init(void) {
 
     _delay_ms(17);
 
-    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x02); // Initialize LCD in 4-Bit mode
-    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x28); // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
+    // Initialize LCD in 4-Bit mode
+    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x02);
+
+    // Initialize LCD in 2 lines, 5*8 fonts and 4-Bit mode
+    lcd_exe_instruction(COMMAND_INSTRUCTION, 0x28);
 
     lcd_display_control(LCD_DISPLAY_ON, LCD_CURSOR_OFF, LCD_BLINK_OFF);
     lcd_clear_display();

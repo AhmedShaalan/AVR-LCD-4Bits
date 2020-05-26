@@ -4,7 +4,7 @@
 #include <util/delay.h>
 #include "LCD.h"
 
-#define F_CPU 8000000UL // 8 MHz
+// #define F_CPU 8000000UL // 8 MHz
 
 void initIO(void) {
 }
